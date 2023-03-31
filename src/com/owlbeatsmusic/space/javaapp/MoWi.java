@@ -323,12 +323,14 @@ public class MoWi {
     }
 
     public void placeWidget(InputWidget widget, int x, int y) {
+        System.out.println(widget.getClass());
         InputWidget[] tempWidgets = new InputWidget[inputWidgets.length+1];
         System.arraycopy(inputWidgets, 0, tempWidgets, 0, inputWidgets.length);
         widget.x = x;
         widget.y = y;
         tempWidgets[tempWidgets.length-1] = widget;
         inputWidgets = tempWidgets;
+        System.out.println(Arrays.toString(inputWidgets));
     }
     public void removeWidget(InputWidget widget) {
         InputWidget[] tempInputs = new InputWidget[inputWidgets.length];
@@ -619,18 +621,8 @@ public class MoWi {
         }
         private Option[] options = {};
 
-        void offsets(int windowX, int windowY) {
-            x = x + windowX;
-            y = y + windowY;
-        }
-
-        void revertOffsets(int windowX, int windowY) {
-            x = x - windowX;
-            y = y - windowY;
-        }
-
-        public void render(int windowX, int windowY, Style color) {
-            offsets(windowX, windowY);
+        public void render() {
+            System.out.println("listbox render");
 
             if (firstTimeRender) {
                 options = new Option[] {};
@@ -661,7 +653,6 @@ public class MoWi {
                 new Text().render("]", defaultColor, x+8+String.valueOf(counter).length(), y+length+1);
             }
 
-            revertOffsets(windowX, windowY);
         }
 
         public void addOption(String title) {
@@ -703,7 +694,7 @@ public class MoWi {
             selectedValues = newArray;
         }
 
-        public void click(int windowX, int windowY) {
+        public void click() {
             for (Option option : options) {
                 if (localX >= option.x+windowX && localX < option.x+windowX+option.title.length() && localY == y+1+option.index+windowY) {
                     option.isSelected = !option.isSelected;
@@ -715,12 +706,12 @@ public class MoWi {
                         counter--;
                         deleteSelectedValue(option.title);
                     }
-                    render(windowX, windowY, defaultColor);
+                    render();
                 }
             }
         }
 
-        public void hover(int windowX, int windowY) {
+        public void hover() {
             for (Option option : options) {
                 if (localX >= option.x+windowX && localX < option.x+windowX+option.title.length() && localY == y+1+option.index+windowY) {
                     if (option.isSelected) {
@@ -770,18 +761,7 @@ public class MoWi {
         }
         private Option[] options = {};
 
-        void offsets(int windowX, int windowY) {
-            x = x + windowX;
-            y = y + windowY;
-        }
-
-        void revertOffsets(int windowX, int windowY) {
-            x = x - windowX;
-            y = y - windowY;
-        }
-
-        public void render(int windowX, int windowY, Style color) {
-            offsets(windowX, windowY);
+        public void render() {
 
             if (firstTimeRender) {
                 for (String inputOption : inputOptions) {
@@ -813,7 +793,6 @@ public class MoWi {
                 new Text().render(")", defaultColor, x+10+String.valueOf(index).length(), y+length+1);
             }
 
-            revertOffsets(windowX, windowY);
         }
 
         public void addOption(String title) {
@@ -823,7 +802,7 @@ public class MoWi {
             options = tempOptions;
         }
 
-        public void click(int windowX, int windowY) {
+        public void click() {
             for (Option option : options) {
                 if (localX >= option.x+windowX && localX < option.x+windowX+option.title.length() && localY == y+1+option.index+windowY) {
                     for (Option option1 : options) {
@@ -834,13 +813,13 @@ public class MoWi {
                     selectedValue = option.title;
                     index = option.index;
                     option.isSelected = true;
-                    render(windowX, windowY, defaultColor);
+                    render();
                     if (widgetDebugging) console.print("<b>[ RadialBox selected ("+option.title+") ]");
                 }
             }
         }
 
-        public void hover(int windowX, int windowY) {
+        public void hover() {
             for (Option option : options) {
                 if (localX >= option.x+windowX && localX < option.x+windowX+option.title.length() && localY == y+1+option.index+windowY) {
                     if (option.isSelected) {
@@ -878,23 +857,10 @@ public class MoWi {
         public boolean showHoverValue;
         public int xPadding;
 
-        void offsets(int windowX, int windowY) {
-            x = x + xPadding;
-            x = x + windowX;
-            y = y + windowY;
-        }
-
-        void revertOffsets(int windowX, int windowY) {
-            x = x - windowX;
-            y = y - windowY;
-            x = x - xPadding;
-        }
-
-        public void render(int windowX, int windowY, Style color) {
+        public void render() {
 
             if (showKey) {
                 xPadding = key.length() + 1;
-                offsets(windowX, windowY);
                 int valueOffset = -xPadding-1;
                 if (localX >= x && localX < x+length && localY == y) {
                     new Text().render(key + " ", popColor, x + valueOffset, y);
@@ -903,7 +869,6 @@ public class MoWi {
                     new Text().render(key + " ", defaultColor, x + valueOffset, y);
                 }
             }
-            else offsets(windowX, windowY);
 
             if (showHoverValue) {
                 int hoverValueOffset = 5;
@@ -926,33 +891,28 @@ public class MoWi {
             pixels[y][x + value] = new Object[]{'•', popColor};
             renderChange(x + value, y, '•', popColor);
 
-            revertOffsets(windowX, windowY);
 
         }
 
-        public void click(int windowX, int windowY) {
-            offsets(windowX, windowY);
+        public void click() {
             if (localX >= x && localX < x+length && localY == y) {
                 value = localX - x;
-                render(-xPadding, 0, defaultColor);
+                render();
                 if (widgetDebugging) console.print("<b>[ Slider selected ("+value+") ]");
             }
-            revertOffsets(windowX, windowY);
         }
 
-        public void hover(int windowX, int windowY) {
-            offsets(windowX, windowY);
+        public void hover() {
             if (localX >= x && localX < x+length && localY == y && localX != value+x) {
                 hoverValue = localX - x;
-                render(-xPadding,0, defaultColor);
+                render();
                 pixels[localY][localX] = new Object[]{'∙', popColor};
                 renderChange(localX, y, '∙', popColor);
             }
             else {
                 hoverValue = 0;
-                render(-xPadding,0, defaultColor);
+                render();
             }
-            revertOffsets(windowX, windowY);
         }
     }
     public class TextBox extends InputWidget {
@@ -977,18 +937,7 @@ public class MoWi {
             text = inputText.split("\n");
         }
 
-        void offsets(int windowX, int windowY) {
-            x = x + windowX;
-            y = y + windowY;
-        }
-
-        void revertOffsets(int windowX, int windowY) {
-            x = x - windowX;
-            y = y - windowY;
-        }
-
-        public void render(int windowX, int windowY, Style color) {
-            offsets(windowX, windowY);
+        public void render() {
 
             new Rect().render(width, height, x, y, defaultColor);
             for (int i = 0; i < height - 1; i++) {
@@ -1007,7 +956,6 @@ public class MoWi {
             new Text().render("#", defaultColor, x + width - 1, y + 1);
             new Text().render("#", defaultColor, x + width - 1, y + height - 1);
 
-            revertOffsets(windowX, windowY);
 
         }
         public void replaceText(String title, String inputText) {
@@ -1020,28 +968,25 @@ public class MoWi {
             }
             text = inputText.split("\n");
         }
-        public void click(int windowX, int windowY) {
+        public void click() {
             oldStartIndex = startIndex;
-            offsets(windowX,windowY);
             if (localX == x+width-1 && localY == y+1) {
                 new Text().render("#", popColor, x + width - 1, y + 1);
                 if (startIndex > 0) {
                     startIndex--;
                 }
-                render(0, 0, defaultColor);
+                render();
             }
             if (localX == x+width-1  && localY == y + height - 1) {
                 new Text().render("#", popColor, x + width - 1, y + height - 1);
                 if (startIndex < text.length-height+2) {
                     startIndex++;
                 }
-                render(0, 0, defaultColor);
+                render();
             }
-            revertOffsets(windowX, windowY);
-            hover(windowX, windowY);
+            hover();
         }
-        public void hover(int windowX, int windowY) {
-            offsets(windowX, windowY);
+        public void hover() {
             if (localX == x+width-1 && localY == y+1) {
                 new Text().render("#", popColor, x + width - 1, y + 1);
             }
@@ -1057,12 +1002,11 @@ public class MoWi {
 
             }
 
-            revertOffsets(windowX, windowY);
         }
         public void drag(int startX, int startY) {
             if (localX > x+1 && localX < x+width-3 && localY > y+1 && localY < y+height-3) {
                 startIndex = oldStartIndex + dragY - localY;
-                render(0, 0, defaultColor);
+                render();
             }
         }
     }
@@ -1328,7 +1272,7 @@ public class MoWi {
 
 
 
-    // <-------| SOCKET |------->
+    // <-------| EXPERIMENTAL |------->
 
     PrintWriter pr;
     InputStreamReader in;
