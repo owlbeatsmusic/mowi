@@ -276,6 +276,7 @@ public class MoWi {
                     if (consoleKeyboardShortcut)
                         console.toggleOnOff();
                 }
+                else if (e.getKeyCode() == 16) {}
                 else if (e.getKeyCode() == 8) {
                     if (isInDebugConsole) {
                         console.deleteCharacter();
@@ -696,7 +697,7 @@ public class MoWi {
 
         public void click() {
             for (Option option : options) {
-                if (localX >= option.x+windowX && localX < option.x+windowX+option.title.length() && localY == y+1+option.index+windowY) {
+                if (localX >= option.x && localX < option.x+option.title.length() && localY == y+1+option.index) {
                     option.isSelected = !option.isSelected;
                     if (option.isSelected) {
                         counter++;
@@ -713,18 +714,18 @@ public class MoWi {
 
         public void hover() {
             for (Option option : options) {
-                if (localX >= option.x+windowX && localX < option.x+windowX+option.title.length() && localY == y+1+option.index+windowY) {
+                if (localX >= option.x && localX < option.x+option.title.length() && localY == y+1+option.index) {
                     if (option.isSelected) {
-                        new Text().render("•", defaultColor, x + windowX + 1, y + windowY + 1 + option.index);
+                        new Text().render("•", defaultColor, x + 1, y + 1 + option.index);
                     }
-                    new Text().render(option.title, popColor, option.x+windowX, y+windowY+1+option.index);
+                    new Text().render(option.title, popColor, option.x, y+1+option.index);
                 }
                 else {
                     if (!option.isSelected) {
-                        new Text().render(option.title, defaultColor, option.x+windowX, y + windowY + 1 + option.index);
+                        new Text().render(option.title, defaultColor, option.x, y + 1 + option.index);
                     }
                     else {
-                        new Text().render("∙", defaultColor, x+windowX + 1, y+windowY + 1 + option.index);
+                        new Text().render("∙", defaultColor, x + 1, y + 1 + option.index);
                     }
                 }
             }
@@ -804,7 +805,7 @@ public class MoWi {
 
         public void click() {
             for (Option option : options) {
-                if (localX >= option.x+windowX && localX < option.x+windowX+option.title.length() && localY == y+1+option.index+windowY) {
+                if (localX >= option.x && localX < option.x+option.title.length() && localY == y+1+option.index) {
                     for (Option option1 : options) {
                         if (option1.isSelected) {
                             option1.isSelected = false;
@@ -821,18 +822,18 @@ public class MoWi {
 
         public void hover() {
             for (Option option : options) {
-                if (localX >= option.x+windowX && localX < option.x+windowX+option.title.length() && localY == y+1+option.index+windowY) {
+                if (localX >= option.x && localX < option.x+option.title.length() && localY == y+1+option.index) {
                     if (option.isSelected) {
-                        new Text().render(">", defaultColor, x + windowX + 1, y + windowY + 1 + option.index);
+                        new Text().render(">", defaultColor, x + 1, y + 1 + option.index);
                     }
-                    new Text().render(option.title, popColor, option.x+windowX, y+windowY+1+option.index);
+                    new Text().render(option.title, popColor, option.x, y+1+option.index);
                 }
                 else {
                     if (!option.isSelected) {
-                        new Text().render(option.title, defaultColor, option.x+windowX, y + windowY + 1 + option.index);
+                        new Text().render(option.title, defaultColor, option.x, y + 1 + option.index);
                     }
                     else {
-                        new Text().render("-", defaultColor, x+windowX + 1, y+windowY + 1 + option.index);
+                        new Text().render("-", defaultColor, x + 1, y + 1 + option.index);
                     }
                 }
             }
@@ -1003,12 +1004,14 @@ public class MoWi {
             }
 
         }
+        /*
         public void drag(int startX, int startY) {
             if (localX > x+1 && localX < x+width-3 && localY > y+1 && localY < y+height-3) {
                 startIndex = oldStartIndex + dragY - localY;
                 render();
             }
         }
+        */
     }
 
     // Console
@@ -1021,11 +1024,11 @@ public class MoWi {
         private String currentCommand = "";
 
         public Console() {
-            this.x = 0;
-            this.y = 0;
-            this.width = consoleWidth-1;
+            this.x = 4;
+            this.y = 2;
+            this.width = consoleWidth-8;
             //this.height = 8;
-            this.height = consoleHeight-1;
+            this.height = consoleHeight-5;
             //String startMessage = "Console v0.1";
 //
             //for (int i = 0; i < startMessage.length(); i++) {
@@ -1126,7 +1129,7 @@ public class MoWi {
             }
 
             // Set popColor
-            else if ((currentCommand+" ").split(" ")[0].equals("color")) {
+            else if ((currentCommand+" ").split(" ")[0].equals("select")) {
                 try {
                     String selectedColor = currentCommand.split(" ")[1];
                     switch (selectedColor) {
@@ -1160,6 +1163,14 @@ public class MoWi {
                 } catch (ArrayIndexOutOfBoundsException e) {
                     print("<r>[ Expected color name ]");
                 }
+            }
+
+            // Help command
+            else if ((currentCommand+" ").split(" ")[0].equals("help") || (currentCommand+" ").split(" ")[0].equals("?")) {
+                print("help                - lists all commands");
+                print("default {colorName} - set the default color");
+                print("select  {colorName} - set the default color");
+                print("print   {message}   - prints command");
             }
 
             // Set defaultColor
