@@ -4,11 +4,6 @@ import javax.swing.*;
 import javax.swing.text.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.Socket;
 import java.util.Arrays;
 
 public class MoWi {
@@ -16,8 +11,6 @@ public class MoWi {
     // Integers
     public final int windowWidth = 900;
     public final int windowHeight = 600;
-    public final int windowX = (1920 - windowWidth)/2;
-    public final int windowY = (1080 - windowHeight)/2;
     private final int consoleWidth = windowWidth/9-2;
     private final int consoleHeight = windowHeight/19-2;
     private int localX = 0;
@@ -27,64 +20,43 @@ public class MoWi {
 
     // Objects
     private Object[][][] pixels = new Object[consoleHeight][consoleWidth][2];
-    private Color bgColor;
-    private Color fgColor = new Color ( 255, 255, 255 );
-    private Font font = new Font("Consolas", Font.BOLD, 16);
-    private JFrame root = new JFrame();
-    private JPanel panel = new JPanel();
-    private JTextPane textPane = new JTextPane() {
-        @Override
-        protected void paintComponent(Graphics g) {
-            super.paintComponent(g);
-            if (isInGui) {
-                g.setColor(Color.white);
-                g.fillRect(0, 0, windowWidth, windowHeight);
-
-                g.setColor(Color.white);
-                g.fillRect(0, 0, windowWidth, windowHeight);
-            }
-        }
-    };
+    private final Font font = new Font("Consolas", Font.BOLD, 16);
+    private final JFrame root = new JFrame();
+    private final JPanel panel = new JPanel();
+    private final JTextPane textPane = new JTextPane();
     private StyledDocument doc = textPane.getStyledDocument();
     private final Console console = new Console();
-    private Socket s;
 
     // Colors
-    private Style white = textPane.addStyle("", null);
-    private Style fadedWhite = textPane.addStyle("", null);
-    private Style green = textPane.addStyle("", null);
-    private Style fadedGreen = textPane.addStyle("", null);
-    private Style red = textPane.addStyle("", null);
-    private Style fadedRed = textPane.addStyle("", null);
-    private Style blue = textPane.addStyle("", null);
-    private Style fadedBlue = textPane.addStyle("", null);
+    private Color bgColor;
+    private Color fgColor = new Color ( 255, 255, 255 );
 
-    private Style popColor = textPane.addStyle("", null);
-    private Style normalPopColor = textPane.addStyle("", null);
-    private Style fadedPopColor = textPane.addStyle("", null);
+    private final Style white        = textPane.addStyle("", null);
+    private final Style fadedWhite   = textPane.addStyle("", null);
+    private final Style green        = textPane.addStyle("", null);
+    private final Style fadedGreen   = textPane.addStyle("", null);
+    private final Style red          = textPane.addStyle("", null);
+    private final Style fadedRed     = textPane.addStyle("", null);
+    private final Style blue         = textPane.addStyle("", null);
+    private final Style fadedBlue    = textPane.addStyle("", null);
 
-    private Style defaultColor = textPane.addStyle("", null);
+    private Style popColor           = textPane.addStyle("", null);
+    private Style normalPopColor     = textPane.addStyle("", null);
+    private Style fadedPopColor      = textPane.addStyle("", null);
+
+    private Style defaultColor       = textPane.addStyle("", null);
     private Style normalDefaultColor = textPane.addStyle("", null);
-    private Style fadedDefaultColor = textPane.addStyle("", null);
+    private Style fadedDefaultColor  = textPane.addStyle("", null);
 
     // Booleans
     public boolean isInDebugConsole = false;
     private boolean widgetDebugging = false;
     private boolean printToIDEConsole = false;
     public boolean consoleKeyboardShortcut = true;
-    private boolean isInGui = false;
 
 
 
     // <-------| MAIN |------->
-
-    class WindowEventHandler extends WindowAdapter {
-        public void windowClosing(WindowEvent evt) {
-            try {
-                s.close();
-            } catch (Exception ignored) {}
-        }
-    }
 
     // Setup JFrame and all components and start rendering the window
     public void render() {
@@ -134,7 +106,6 @@ public class MoWi {
         root.setBackground(Color.white);
         root.setVisible(true);
         root.setResizable(true);
-        root.addWindowListener(new WindowEventHandler());
         root.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
         root.add(panel);
@@ -144,7 +115,7 @@ public class MoWi {
         root.setResizable(true);
 
         root.setSize(windowWidth, windowHeight);
-        root.setLocation(windowX, windowY);
+        root.setLocation((1920 - windowWidth)/2, (1080 - windowHeight)/2);
 
         // Begin rendering screen
         renderScreen();
@@ -156,7 +127,7 @@ public class MoWi {
     }
 
     // Simpler print to console
-    public void print(String s) {
+    public void println(String s) {
         console.print(s);
     }
 
@@ -533,7 +504,7 @@ public class MoWi {
         public void onClick() {}
 
         public void click() {
-            if (localX >= x+windowX && localX < x+windowX+length && localY == y+windowY) {
+            if (localX >= x && localX < x+length && localY == y) {
                 visualState = VisualState.HOVER;
                 render();
                 if (widgetDebugging) console.print("<b>[ ActionButton (Clicked) ]");
@@ -584,7 +555,7 @@ public class MoWi {
                 visualState = VisualState.HOVER;
                 render();
                 if (widgetDebugging)
-                    print("<b>[ ToggleButton ("+isOn+") ]");
+                    println("<b>[ ToggleButton ("+isOn+") ]");
             }
         }
 
@@ -1119,17 +1090,9 @@ public class MoWi {
             // Detect all commands
 
             // Connect to socket
-            if ((currentCommand+" ").split(" ")[0].equals("connect") || (currentCommand+" ").split(" ")[0].equals("c")) {
-                try {
-                    int port = Integer.parseInt(currentCommand.split(" ")[1]);
-                    print(connectToServer(port));
-                } catch (ArrayIndexOutOfBoundsException e) {
-                    print("<r>[ Expected port ]");
-                }
-            }
 
             // Set popColor
-            else if ((currentCommand+" ").split(" ")[0].equals("select")) {
+            if ((currentCommand+" ").split(" ")[0].equals("select")) {
                 try {
                     String selectedColor = currentCommand.split(" ")[1];
                     switch (selectedColor) {
@@ -1220,13 +1183,6 @@ public class MoWi {
                 }
             }
 
-            // Open the gui
-            else if ((currentCommand+" ").split(" ")[0].equals("gui")) {
-                currentCommand = "";
-                toggleOnOff();
-                isInGui = true;
-            }
-
             // Give error if none of the commands work
             else {
                 print("<r>[ Unknown command ]");
@@ -1281,38 +1237,6 @@ public class MoWi {
         }
     }
 
-
-
-    // <-------| EXPERIMENTAL |------->
-
-    PrintWriter pr;
-    InputStreamReader in;
-    BufferedReader bf;
-    private String connectToServer(int port) {
-        try {
-            // First time running
-            if (s == null) {
-                s = new Socket("localhost", port);
-                pr = new PrintWriter(s.getOutputStream());
-                in  = new InputStreamReader(s.getInputStream());
-                bf = new BufferedReader(in);
-                pr.println("Server");
-                pr.flush();
-            }
-
-            // Always when run
-            pr.println(".get");
-            pr.flush();
-            System.out.println("1");
-            String message = bf.readLine();
-            System.out.println("2 : " + message);
-            console.setText(message.split("<space>"));
-            console.render();
-        } catch (IOException ignored) {
-            return "";
-        }
-        return "";
-    }
 }
 
 
